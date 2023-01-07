@@ -1,13 +1,25 @@
-import { StyleSheet, Text, View, TouchableOpacity, Image, KeyboardAvoidingView, Platform } from 'react-native';
+import { StyleSheet, RefreshControl, Text, View, Dimensions, TouchableOpacity, TextInput, ScrollView, KeyboardAvoidingView } from 'react-native';
 import React, { useState, useEffect, isValidElement } from 'react';
 
-import { TextInput, Button } from 'react-native-paper';
+import Icon from 'react-native-vector-icons/AntDesign';
+import Icon2 from 'react-native-vector-icons/Entypo';
+import colors from '../constant/colors';
+
+
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { useToast } from "react-native-toast-notifications";
 
+var screenSize = Dimensions.get('window');
+var screenWidth = screenSize.width;
+var screenHalfWidth = screenSize.width * 0.465;
+
+
+
 const Login = ({ navigation }) => {
+
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -18,57 +30,82 @@ const Login = ({ navigation }) => {
 
   const [showPassword, setShowPassword] = useState(true);
 
-  const [loading, setLoading] = useState(false);
+
+  // Refresh the app setup here
+  const [refreshing, setRefreshing] = useState(false);
+
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    // setTimeout(() => {
+    //   setRefreshing(false);
+    // }, 2000);
+  }
+  const refreshControl = () => {
+    return (
+      <RefreshControl
+        refreshing={refreshing}
+        onRefresh={onRefresh}
+      />
+    )
+
+  }
 
   const Submit = async () => {
-    if(validForm()){
-      setLoading(true);
-      let result = await fetch('http://192.168.1.13:5000/users/Login', {
-       method: 'post',
-       headers: {
-         'Accept': 'application/json',
-         'Content-Type': 'application/json'
-       },
-       body: JSON.stringify({
-         email,
-         password
-       })
-     })
-     result = await  result.json();
+
+    if (validForm()) {
+
+      let result = await fetch('http://192.168.1.109:5000/users/Login', {
+        method: 'post',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email,
+          password
+        })
+      })
+      result = await result.json();
+
+      console.log()
+      if (result.data.status == 200) {
+
+        toast.show("You login Succesfully ", {
+          type: "success",
+          placement: "top",
+          duration: 3000,
+          offset: 30,
+          animationType: "zoom-in",
+        });
+
+        try {
+          await AsyncStorage.setItem("token", result.data.token);
+        } catch (error) {
+          console.log(error);
+        }
+
+
+
      
-     console.log()
-     if(result.data.status ==200){
 
-      toast.show("You login Succesfully ", {
-        type: "success",
-        placement: "top",
-        duration: 3000,
-        offset: 30,
-        animationType: "zoom-in",
-      });
+        setTimeout(() => {
+          // navigation.navigate('Onboarding');
+          refreshControl();
+        }, 1500);
 
-      try {
-        await AsyncStorage.setItem("token", JSON.stringify(result.data.token));
-      } catch (error) {
-        console.log(error);
+      }
+      if (result.data.status == 401) {
+        toast.show("Wrong Password", {
+          type: "warning",
+          placement: "top",
+          duration: 3000,
+          offset: 30,
+          animationType: "zoom-in",
+        });
       }
 
-      setTimeout(() => {
-        navigation.navigate('Home');
-      }, 3000);
-    
-     }
-     if(result.data.status ==401){
-      toast.show("Wrong Password", {
-        type: "warning",
-        placement: "top",
-        duration: 3000,
-        offset: 30,
-        animationType: "zoom-in",
-      });
-    }
-     
-    }else{
+    } else {
       toast.show("Invalid Email or Password", {
         type: "warning",
         placement: "top",
@@ -79,35 +116,13 @@ const Login = ({ navigation }) => {
     }
 
 
-    // fetch('http://192.168.29.194:5000/login', {
-    //     method: 'post',
-    //     headers: {
-    //         'Accept': 'application/json',
-    //         'Content-Type': 'application/json'
-    //     },
-    //     body: JSON.stringify({
-    //         email,
-    //         password
-    //     })
-    // })
-    //     .then(res => res.json())
-    //     .then(data => {
-    //         console.log(data)
-    //         AsyncStorage.setItem("user", JSON.stringify(data));
-    //         userdata();
-    //     })
-    
+
+
   }
 
-  // const userdata = async () => {
-  //     let user = await AsyncStorage.getItem('user');
-  //     const user2 = JSON.parse(user);
-  //     console.log(user);
-  //    setUsercontent(user);
-  //     console.log(user2);
-  // }
 
-  const validForm=()=>{
+
+  const validForm = () => {
     setErrField({
       emailErr: '',
       passwordErr: ''
@@ -137,7 +152,7 @@ const Login = ({ navigation }) => {
   }
 
   const toast = useToast();
-  const Tooast = () =>{
+  const Tooast = () => {
     toast.show("User Added successfully", {
       type: "success",
       placement: "top",
@@ -146,74 +161,88 @@ const Login = ({ navigation }) => {
       animationType: "zoom-in",
     });
   }
-  
-  // AsyncStorage.getItem('token').then((res) => console.log(res))
+
+
+
   return (
-    <View  >
-      <Image source={require('../asource/logo.png')} style={styles.imagelogo} />
+    <ScrollView style={{ backgroundColor: 'white' }}>
+      <KeyboardAvoidingView behavior='position'>
 
+        <View style={styles.backbg}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Icon name='arrowleft' size={26} color='black' />
+          </TouchableOpacity>
+          <Text style={styles.backbtn}>Back</Text>
+        </View>
 
-      <Text style={styles.logintext}>Login here!</Text>
-      
-       <TextInput
-          style={styles.input}
-          label="Email"
-          mode='outlined'
-          keyboardType='default'
-          onChangeText={setEmail}
-          value={email}
-        />
-        {errField.emailErr.length > 0 && <Text style={styles.validline}>{errField.emailErr}</Text>}
-        <TextInput
+        <Text style={styles.logintext} >Log in</Text>
+
+        <View style={styles.inputStyle}>
+          <TextInput
             style={styles.input}
-            label='Password'
-            mode='outlined'
+            placeholder="Email"
             keyboardType='default'
-            onChangeText={setPassword}
-            value={password}
-            secureTextEntry={showPassword}
-            right={<TextInput.Icon icon={showPassword ? 'eye-off' : 'eye'} size={25} onPress={() => setShowPassword(!showPassword)} />}
+            onChangeText={setEmail}
+            value={email}
           />
-          {errField.passwordErr.length > 0 && <Text style={styles.validline}>{errField.passwordErr}</Text>}
+          {errField.emailErr.length > 0 && <Text style={styles.validline}>{errField.emailErr}</Text>}
+          <View>
+            <TextInput
+              style={styles.input}
+              placeholder="Password"
+              keyboardType='default'
+              onChangeText={setPassword}
+              value={password}
+              secureTextEntry={showPassword}
+            />
+            <Icon2 name={showPassword ? 'eye-with-line' : 'eye'} size={24} onPress={() => setShowPassword(!showPassword)} style={styles.passIcon} />
+            {errField.passwordErr.length > 0 && <Text style={styles.validline}>{errField.passwordErr}</Text>}
+          </View>
+          <TouchableOpacity onPress={Submit}>
+            <View style={styles.inputbutton}>
+              <Text style={styles.inputbuttontext}>LOG IN</Text>
+            </View>
+          </TouchableOpacity>
 
-      
-
-     
-      <Button icon="account-arrow-left" mode="contained" onPress={Submit} style={styles.bgbtn} loading={loading} >
-          Submit
-        </Button>
-    
-      <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-        <Text style={styles.registerline}>don't have Account ? Register here</Text>
-      </TouchableOpacity>
-
-    </View>
+        </View>
+      </KeyboardAvoidingView>
+    </ScrollView>
   )
 }
 
 export default Login
 
 const styles = StyleSheet.create({
-  input: {
-    marginHorizontal: '5%',
-    marginTop: 10,
-    marginBottom: 5,
-    backgroundColor: '#e0e7ee',
-    fontSize: 16,
-    fontWeight: '800',
-    paddingLeft: 10,
+  inputStyle: {
+    paddingVertical: '4%',
+    paddingHorizontal: '4%',
+    width: screenWidth,
+
   },
-  imagelogo: {
-    width: 200,
-    height: 100,
-    alignSelf: 'center',
-    marginTop: 20,
+  input: {
+    fontSize: 15,
+    fontWeight: '400',
+    paddingLeft: 10,
+    marginVertical: '2%',
+    fontFamily: 'roboto',
+    borderWidth: 1,
+    height: 52,
+    backgroundColor: 'white'
   },
   logintext: {
-    alignSelf: 'center',
+    fontWeight: '400',
     fontSize: 20,
-    color: '#007AFF',
-    marginTop: 20,
+    color: '#878686',
+    marginLeft: '5%',
+    marginVertical: '5%'
+  },
+
+  bgbtn: {
+    fontSize: 16,
+    fontWeight: '800',
+    backgroundColor: colors.buttonColor,
+    borderRadius: 5,
+
   },
   registerline: {
     fontSize: 15,
@@ -222,19 +251,41 @@ const styles = StyleSheet.create({
     marginTop: 40,
 
   },
-  bgbtn: {
-    marginHorizontal: '5%',
-    marginTop: 10,
-    marginBottom: 5,
-    fontSize: 16,
-    fontWeight: '800',
-    paddingLeft: 10,
-  },
-  
   validline: {
     color: 'red',
     fontSize: 15,
     fontWeight: 'bold',
-    marginLeft: '10%'
+    marginLeft: '2%'
   },
+  backbtn: {
+    fontSize: 18,
+    fontWeight: '600',
+    fontFamily: 'Roboto',
+    marginLeft: 10
+  },
+  backbg: {
+    flexDirection: 'row',
+    marginHorizontal: '5%',
+    marginVertical: 20
+  },
+  passIcon: {
+    position: 'absolute',
+    right: '4%',
+    top: '31%'
+  },
+  inputbutton: {
+    fontWeight: '400',
+    alignItems: 'center',
+    marginVertical: '2%',
+    height: 52,
+    borderRadius: 5,
+    backgroundColor: colors.buttonColor,
+    paddingVertical: '4%'
+  },
+  inputbuttontext: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '900'
+
+  }
 })

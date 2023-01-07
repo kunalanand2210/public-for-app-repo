@@ -1,32 +1,45 @@
-import { StyleSheet, Text, View, SafeAreaView, ScrollView } from 'react-native';
-import React from 'react';
-import { Avatar, Button, Card, Title, Paragraph } from 'react-native-paper';
+import { StyleSheet, Text, View, SafeAreaView, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { Avatar, IconButton, Card, Title, Paragraph } from 'react-native-paper';
+
+import CardComponent from '../component/CardComponent';
+
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 
 
-const MainScreen = () => {
+const MainScreen = ({ navigation }) => {
+
+
+
   return (
     <ScrollView>
       <SafeAreaView>
-        <View style={{
+        <View >
+          <View style={styles.userbox}>
+            <View style={styles.userboxbg}>
+              <Icon name='user' size={32} color='black' />
+            </View>
+            <Text style={styles.user}>Hi, User! </Text>
+          </View>
 
-        }}>
-          <Card>
-            <Card.Cover source={{ uri: 'https://picsum.photos/700' }} />
-            <Card.Content>
-              <Title>Our Products </Title>
-              <Paragraph>Click to explore more</Paragraph>
-            </Card.Content>
-          </Card>
+          <View style={{ position: 'relative', marginTop: '8%' }}>
+            <TouchableOpacity onPress={() => navigation.navigate('Service')}>
+              <CardComponent heading='Service' para='For any Services and installation request' />
+            </TouchableOpacity>
+          </View>
 
-          <Card >
-            <Card.Cover source={{ uri: 'https://picsum.photos/700' }} />
-            <Card.Content>
-              <Title>Services Page  </Title>
-              <Paragraph>Click to go with Our Services</Paragraph>
-            </Card.Content>
-          </Card>
-        
+
+          <View style={{ position: 'absolute', top: '36%' }}>
+            <TouchableOpacity onPress={() => navigation.navigate('Product')}>
+              <CardComponent heading='Product Information' para='For any Product Information' />
+            </TouchableOpacity>
+          </View>
+
+
+
+
+
         </View>
 
       </SafeAreaView>
@@ -37,4 +50,25 @@ const MainScreen = () => {
 
 export default MainScreen
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  user: {
+    fontWeight: '400',
+    fontSize: 20,
+    color: '#878686',
+    margin: '2%'
+  },
+  userbox: {
+
+    flexDirection: 'row',
+    height: '6%',
+    paddingHorizontal: '2%',
+    paddingVertical: '2%',
+    marginVertical: '3%'
+  },
+  userboxbg: {
+    width: '10%',
+    backgroundColor: '#D9D9D9',
+    paddingHorizontal: '2%',
+    paddingVertical: '1%'
+  }
+})

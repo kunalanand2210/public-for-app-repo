@@ -1,17 +1,26 @@
 import {
   StyleSheet,
   Text,
-  Image,
+  TouchableOpacity,
   View,
+  Dimensions,
   ScrollView,
+  KeyboardAvoidingView,
+  TextInput
 } from 'react-native';
-import { TextInput, Button } from 'react-native-paper';
+
 import React, { useState } from 'react';
 
 import { useToast } from "react-native-toast-notifications";
 
+import Icon from 'react-native-vector-icons/AntDesign';
+import Icon2 from 'react-native-vector-icons/Entypo';
+import colors from '../constant/colors';
 
 
+var screenSize = Dimensions.get('window');
+var screenWidth = screenSize.width;
+var screenHalfWidth = screenSize.width * 0.465;
 
 
 const Register = ({ navigation }) => {
@@ -37,7 +46,7 @@ const Register = ({ navigation }) => {
   const Submit = async () => {                                              //submit function here//
     if (validForm()) {
       setLoading(true);
-       let result = await fetch('http://192.168.1.13:5000/users/add', {
+      let result = await fetch('http://192.168.1.109:5000/users/add', {
         method: 'post',
         headers: {
           'Accept': 'application/json',
@@ -50,23 +59,23 @@ const Register = ({ navigation }) => {
           password
         })
       })
-      result = await  result.json();
-      
-                                             // to show the alert 
-      if(result.message == 'ok'){
+      result = await result.json();
+
+      // to show the alert 
+      if (result.message == 'ok') {
         toast.show("User Added successfully", {
           type: "success",
           placement: "top",
-          duration: 3000,
+          duration: 1500,
           offset: 30,
           animationType: "zoom-in",
         });
-                                       // timeout for redirect the screen
+        // timeout for redirect the screen
         setTimeout(() => {
           navigation.navigate('Login');
-        }, 3000);
+        }, 1500);
       }
-    
+
 
     } else {
       toast.show("Something went wrong", {
@@ -156,109 +165,125 @@ const Register = ({ navigation }) => {
 
 
   return (
-    <>
+    <ScrollView style={{ backgroundColor: 'white' }}>
+      <KeyboardAvoidingView behavior='position'>
 
-      <Image source={require('../asource/logo.png')} style={styles.imagelogo} />
 
-      <Text style={styles.logintext} >Sign Up Here !</Text>
+        <View style={styles.backbg}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Icon name='arrowleft' size={26} color='black' />
+          </TouchableOpacity>
 
-      <ScrollView contentContainerStyle={{ flex: 1 }}>
-        <TextInput
-          style={styles.input}
+          <Text style={styles.backbtn}>Back</Text>
+        </View>
 
-          label="Name"
-          mode='outlined'
-          keyboardType='default'
-          onChangeText={setName}
-          value={name}
-        />
-        {errField.nameErr.length > 0 && <Text style={styles.validline}>{errField.nameErr}</Text>}
+        <Text style={styles.logintext} >Register</Text>
 
-        <TextInput
-          style={styles.input}
-          label="Email"
-          mode='outlined'
-          keyboardType='default'
-          onChangeText={setEmail}
-          value={email}
-        />
-        {errField.emailErr.length > 0 && <Text style={styles.validline}>{errField.emailErr}</Text>}
-        <TextInput
-          style={styles.input}
-          label='Mobile'
-          mode='outlined'
-          keyboardType='number-pad'
-          onChangeText={setMobile}
-          value={mobile}
-        />
-        {errField.mobileErr.length > 0 && <Text style={styles.validline}>{errField.mobileErr}</Text>}
 
-       
+        <View style={styles.inputStyle}>
+
+
+
           <TextInput
             style={styles.input}
-            label='Password'
-            mode='outlined'
+            placeholder="Name"
             keyboardType='default'
-            onChangeText={setPassword}
-            value={password}
-            secureTextEntry={showPassword}
-            right={<TextInput.Icon icon={showPassword ? 'eye-off' : 'eye'} size={25} onPress={() => setShowPassword(!showPassword)} />}
+            onChangeText={setName}
+            value={name}
           />
-          {errField.passwordErr.length > 0 && <Text style={styles.validline}>{errField.passwordErr}</Text>}
+          {errField.nameErr.length > 0 && <Text style={styles.validline}>{errField.nameErr}</Text>}
 
-
-        
-
-
-       
           <TextInput
             style={styles.input}
-            mode='outlined'
-            label='Confirm-Password'
+            placeholder="Email"
             keyboardType='default'
-            onChangeText={setCpassword}
-            value={cpassword}
-            secureTextEntry={showCPassword}
-            right={<TextInput.Icon icon={showCPassword ? 'eye-off' : 'eye'} size={25} onPress={() => setShowCPassword(!showCPassword)} />}
+            onChangeText={setEmail}
+            value={email}
           />
-          {errField.cpasswordErr.length > 0 && <Text style={styles.validline}>{errField.cpasswordErr}</Text>}
+          {errField.emailErr.length > 0 && <Text style={styles.validline}>{errField.emailErr}</Text>}
+          <TextInput
+            style={styles.input}
+            placeholder="Mobile"
+            keyboardType='number-pad'
+            onChangeText={setMobile}
+            value={mobile}
+          />
+          {errField.mobileErr.length > 0 && <Text style={styles.validline}>{errField.mobileErr}</Text>}
+
+          <View>
+            <TextInput
+              style={styles.input}
+              placeholder="Password"
+              keyboardType='default'
+              onChangeText={setPassword}
+              value={password}
+              secureTextEntry={showPassword}
+            />
+            <Icon2 name={showPassword ? 'eye-with-line' : 'eye'} size={24} onPress={() => setShowPassword(!showPassword)} style={styles.passIcon} />
+            {errField.passwordErr.length > 0 && <Text style={styles.validline}>{errField.passwordErr}</Text>}
+          </View>
 
 
-        
 
 
-        <Button icon="account-arrow-left" mode="contained" onPress={Submit} style={styles.bgbtn} loading={loading} >
-          Submit
-        </Button>
 
-      </ScrollView>
-    </>
+
+          <View>
+            <TextInput
+              style={styles.input}
+              placeholder="Confirm-Password"
+              keyboardType='default'
+              onChangeText={setCpassword}
+              value={cpassword}
+              secureTextEntry={showCPassword}
+            />
+            <Icon2 name={showCPassword ? 'eye-with-line' : 'eye'} size={24} onPress={() => setShowCPassword(!showCPassword)} style={styles.passIcon} />
+            {errField.cpasswordErr.length > 0 && <Text style={styles.validline}>{errField.cpasswordErr}</Text>}
+          </View>
+
+
+          <TouchableOpacity onPress={Submit}>
+            <View style={styles.inputbutton}>
+              <Text style={styles.inputbuttontext}>SUBMIT</Text>
+            </View>
+          </TouchableOpacity>
+
+
+
+
+        </View>
+
+      </KeyboardAvoidingView>
+    </ScrollView>
   )
 }
 
 export default Register
 
 const styles = StyleSheet.create({
+  inputStyle: {
+    paddingVertical: '4%',
+    paddingHorizontal: '4%',
+    width: screenWidth,
+
+  },
   input: {
-    marginHorizontal: '5%',
-    marginTop: 10,
-    marginBottom: 5,
-    backgroundColor: '#e0e7ee',
-    fontSize: 16,
-    fontWeight: '800',
+    fontSize: 15,
+    fontWeight: '400',
     paddingLeft: 10,
+    marginVertical: '2%',
+    fontFamily: 'roboto',
+    borderWidth: 1,
+    height: 52,
+    backgroundColor: 'white'
   },
-  imagelogo: {
-    width: 200,
-    height: 100,
-    alignSelf: 'center',
-    marginTop: 20,
-  },
+
   logintext: {
-    alignSelf: 'center',
+    fontWeight: '400',
     fontSize: 20,
-    color: '#007AFF',
-    marginTop: 20,
+    color: '#878686',
+    marginLeft: '5%',
+    marginVertical: '5%'
   },
   registerline: {
     fontSize: 15,
@@ -268,20 +293,50 @@ const styles = StyleSheet.create({
 
   },
   bgbtn: {
-    marginHorizontal: '5%',
-    marginTop: 10,
-    marginBottom: 5,
     fontSize: 16,
     fontWeight: '800',
-    paddingLeft: 10,
+    backgroundColor: colors.buttonColor,
+    borderRadius: 5,
+
   },
   validline: {
     color: 'red',
     fontSize: 15,
     fontWeight: 'bold',
-    marginLeft: '10%'
+    marginLeft: '2%'
   },
   container: {
     flex: 1
   },
+  backbtn: {
+    fontSize: 18,
+    fontWeight: '600',
+    fontFamily: 'Roboto',
+    marginLeft: 10
+  },
+  backbg: {
+    flexDirection: 'row',
+    marginHorizontal: '5%',
+    marginVertical: 20
+  },
+  passIcon: {
+    position: 'absolute',
+    right: '4%',
+    top: '31%'
+  },
+  inputbutton: {
+    fontWeight: '400',
+    alignItems: 'center',
+    marginVertical: '2%',
+    height: 52,
+    borderRadius: 5,
+    backgroundColor: colors.buttonColor,
+    paddingVertical: '4%'
+  },
+  inputbuttontext: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '900'
+
+  }
 })

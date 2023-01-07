@@ -35,7 +35,7 @@ const userLogin = async (req, resp) => {
         
         if (match) {
             responseType.message = 'Login Successfully';
-            responseType.token = user.tokens;
+            responseType.token = myToken;
             responseType.status = 200;
         } else {
             responseType.message = 'Wrong Password';
@@ -45,7 +45,7 @@ const userLogin = async (req, resp) => {
         responseType.message = 'Invalid Email id';
         responseType.status = 404;
     }
-    resp.status(responseType.status).json({ message: 'ok', data: responseType });
+    resp.status(responseType.status).json({ message: 'ok', data: responseType});
 
 
 }
