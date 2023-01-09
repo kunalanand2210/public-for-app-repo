@@ -31,31 +31,13 @@ const Login = ({ navigation }) => {
   const [showPassword, setShowPassword] = useState(true);
 
 
-  // Refresh the app setup here
-  const [refreshing, setRefreshing] = useState(false);
 
-
-  const onRefresh = () => {
-    setRefreshing(true);
-    // setTimeout(() => {
-    //   setRefreshing(false);
-    // }, 2000);
-  }
-  const refreshControl = () => {
-    return (
-      <RefreshControl
-        refreshing={refreshing}
-        onRefresh={onRefresh}
-      />
-    )
-
-  }
 
   const Submit = async () => {
 
     if (validForm()) {
 
-      let result = await fetch('http://192.168.1.109:5000/users/Login', {
+      let result = await fetch('http://192.168.1.8:5000/users/Login', {
         method: 'post',
         headers: {
           'Accept': 'application/json',
@@ -90,8 +72,8 @@ const Login = ({ navigation }) => {
      
 
         setTimeout(() => {
-          // navigation.navigate('Onboarding');
-          refreshControl();
+          navigation.navigate('Next');
+          
         }, 1500);
 
       }

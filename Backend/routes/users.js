@@ -19,6 +19,8 @@ router.get('/list', passport.authenticate('jwt',{session:false}), userCtrl.userL
 
 router.post('/add', userCtrl.userAdd);
 
-router.post('/login',userCtrl.userLogin)
+router.post('/login',userCtrl.userLogin);
+
+router.patch('/update/:id', userCtrl.userUpdate);
 
 module.exports = router;

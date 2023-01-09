@@ -46,7 +46,7 @@ const Register = ({ navigation }) => {
   const Submit = async () => {                                              //submit function here//
     if (validForm()) {
       setLoading(true);
-      let result = await fetch('http://192.168.1.109:5000/users/add', {
+      let result = await fetch('http://192.168.1.8:5000/users/add', {
         method: 'post',
         headers: {
           'Accept': 'application/json',

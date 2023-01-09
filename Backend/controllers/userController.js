@@ -1,4 +1,6 @@
-const Users = require('../models/users')
+const Users = require('../models/users');
+const Userdata = require('../models/userdata')
+
 var bcrypt = require('bcryptjs');
 
 const userList = async (req, resp) => {
@@ -50,10 +52,23 @@ const userLogin = async (req, resp) => {
 
 }
 
-
+const userUpdate = async (req, resp) => {
+    try{
+          const {brand, product, customer_name, customer_mobile, customer_email, address, invoice } = req.body;
+          const _id = req.params.id;
+          const updateUser = await Users.findByIdAndUpdate(_id,{"data":{brand, product, customer_name, customer_mobile, customer_email, address, invoice}})
+          resp.status(200).send({ message: 'ok', token: myToken });
+          
+    }catch(e){
+        resp.send(e);
+    }
+   
+   
+}
 
 module.exports = {
     userList,
     userAdd,
-    userLogin
+    userLogin,
+    userUpdate
 }

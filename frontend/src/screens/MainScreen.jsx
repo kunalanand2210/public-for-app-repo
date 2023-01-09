@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, SafeAreaView, ScrollView, TouchableOpacity } from 'react-native';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Avatar, IconButton, Card, Title, Paragraph } from 'react-native-paper';
 
 import CardComponent from '../component/CardComponent';
@@ -9,6 +9,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 
 
 const MainScreen = ({ navigation }) => {
+
 
 
 

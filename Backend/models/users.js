@@ -20,6 +20,17 @@ var userSchema = new mongoose.Schema({
                 require:true
             }
         }
+    ],
+    data:[
+        {
+            brand:String,
+            product:String,
+            customer_name:String,
+            customer_mobile:String,
+            customer_email:String,
+            address:String,
+            invoice:String
+        }
     ]
     
 },{

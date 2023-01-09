@@ -1,6 +1,8 @@
 import { SafeAreaView, StyleSheet, Text, View, TouchableOpacity, Dimensions, TextInput, ScrollView, KeyboardAvoidingView } from 'react-native';
 import React, { useState } from 'react';
 
+
+
 import Dropdown from '../component/Dropdown';
 import Icon from 'react-native-vector-icons/AntDesign';
 import Icon1 from 'react-native-vector-icons/Feather';
@@ -10,28 +12,54 @@ import FilePicker from 'react-native-document-picker';
 
 import { useToast } from "react-native-toast-notifications";
 
+import jwt_decode from "jwt-decode";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 var screenSize = Dimensions.get('window');
 var screenWidth = screenSize.width;
 
+
+
 const Services = ({ navigation }) => {
 
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [mobile, setMobile] = useState('');
+  const [auth, setAuth] = useState(false);
+  const [valid, setValid] = useState(null);
+  
+  const Authorized = async () => {
+    // AsyncStorage.clear()
+    setValid(await AsyncStorage.getItem('token'));
+    if (valid != null) {
+      setAuth(true);
+    }
+  }
+  Authorized();
+  
+  
+  
+  
+
+
+
+
+  const [brand, setBrand] = useState(null);
+  const [product, setProduct] = useState(null);
+  const [customer_name, setCustomer_name] = useState('');
+  const [customer_email, setCustomer_email] = useState('');
+  const [customer_mobile, setCustomer_mobile] = useState('');
   const [address, setAddress] = useState('');
 
   const [errField, setErrField] = useState({
-    brandErr:'',
-    productErr:'',
+    brandErr: '',
+    productErr: '',
     nameErr: '',
     emailErr: '',
     mobileErr: '',
     addressErr: '',
-    invoiceErr:''
+    invoiceErr: ''
   })
 
-  // these for document select and upload 
   const [filedata, setFiledata] = useState([]);
+  const [filename, setFilename] = useState();
 
   const handleFilePicker = async () => {
     try {
@@ -39,17 +67,17 @@ const Services = ({ navigation }) => {
         presentationStyle: 'fullScreen'
       });
       let result = response[0].uri;
+      let name = response[0].name;
       setFiledata(result);
-      console.log(filedata);
+      setFilename(name);
+
     } catch (err) {
       console.log(err);
     }
   }
- 
-  const [selecteditem, setSelecteditem] = useState(null);
-  const [selecteditem1, setSelecteditem1] = useState(null);
-  const [brand, setBrand] = useState();
-  const [product, setProduct] = useState();
+
+  const [brandid, setBrandid] = useState();
+  const [productid, setProductid] = useState();
   let data = [
     { id: 1, name: "Thompson" },
     { id: 2, name: "White WestingHouse" },
@@ -65,110 +93,116 @@ const Services = ({ navigation }) => {
   ];
 
   const onSelect = (e) => {
-    setSelecteditem(e.name);
-    setBrand(e.id);
+    setBrand(e.name);
+    setBrandid(e.id);
   };
   const onSelect1 = (e) => {
-    setSelecteditem1(e.name);
-    setProduct(e.id);
+    setProduct(e.name);
+    setProductid(e.id);
   };
 
+
   const Submit = async () => {                                              //submit function here//
+    const detail = jwt_decode(valid);
+    const _id = detail.id;
+  
     if (validForm()) {
-      // let result = await fetch('http://192.168.1.41:5000/users/add', {
-      //   method: 'post',
-      //   headers: {
-      //     'Accept': 'application/json',
-      //     'Content-Type': 'application/json'
-      //   },
-      //   body: JSON.stringify({
-      //     name,
-      //     email,
-      //     mobile,
-      //     password
-      //   })
-      // })
-      // result = await result.json();
-
+      let result = await fetch(`http://192.168.1.8:5000/users/update/${_id}`, {
+        method: 'patch',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          brand,
+          product,
+          customer_name,
+          customer_email,
+          customer_mobile,
+          address,
+          filedata
+        })
+      })
+      result = await result.json();
+      console.log(result);
       // to show the alert 
-      // if (result.message == 'ok') {
-      //   toast.show("User Added successfully", {
-      //     type: "success",
-      //     placement: "top",
-      //     duration: 3000,
-      //     offset: 30,
-      //     animationType: "zoom-in",
-      //   });
-      //   // timeout for redirect the screen
-      //   setTimeout(() => {
-      //     navigation.navigate('Login');
-      //   }, 3000);
-      // }
+      if (result.message == 'ok') {
+        toast.show("User detail successfully update", {
+          type: "success",
+          placement: "top",
+          duration: 3000,
+          offset: 30,
+          animationType: "zoom-in",
+        });
+        // timeout for redirect the screen
+        //   setTimeout(() => {
+        //     navigation.navigate('Login');
+        //   }, 3000);
+        // }
 
 
-    } else {
-      toast.show("Something went wrong", {
-        type: "warning",
-        placement: "top",
-        duration: 3000,
-        offset: 30,
-        animationType: "zoom-in",
-      });
+      } else {
+        toast.show("Something went wrong", {
+          type: "warning",
+          placement: "top",
+          duration: 3000,
+          offset: 30,
+          animationType: "zoom-in",
+        });
+      }
     }
-
-
   }
 
   const validForm = () => {
     setErrField({
-      brandErr:'',
-      productErr:'',
+      brandErr: '',
+      productErr: '',
       nameErr: '',
       emailErr: '',
       mobileErr: '',
-      addressErr:'',
-      invoiceErr:'',
+      addressErr: '',
+      invoiceErr: '',
     })
     let formIsValid = true;
 
     const validEmailRegex = RegExp(/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/i);
-    if (selecteditem == null) {
+    if (brand == null) {
       formIsValid = false;
       setErrField(prevState => ({
         ...prevState, brandErr: 'Please Select Brand name'
       }))
     }
-    if (selecteditem1 == null) {
+    if (product == null) {
       formIsValid = false;
       setErrField(prevState => ({
         ...prevState, productErr: 'Please Select Product'
       }))
     }
-    if (name == '') {
+    if (customer_name == '') {
       formIsValid = false;
       setErrField(prevState => ({
         ...prevState, nameErr: 'Please Enter Customer Name'
       }))
     }
-    if (email == '') {
+    if (customer_email == '') {
       formIsValid = false;
       setErrField(prevState => ({
-        ...prevState, emailErr: 'Please Enter EmaiID'
+        ...prevState, emailErr: 'Please Enter EmailID'
       }))
     }
-    if (email != '' && !validEmailRegex.test(email)) {
+    if (customer_email != '' && !validEmailRegex.test(customer_email)) {
       formIsValid = false;
       setErrField(prevState => ({
         ...prevState, emailErr: 'Please Enter a valid Email ID'
       }))
     }
-    if (mobile == '') {
+    if (customer_mobile == '') {
       formIsValid = false;
       setErrField(prevState => ({
         ...prevState, mobileErr: 'Please Enter  Mobile no'
       }))
     }
-    if (mobile != '' && mobile.length != 10) {
+    if (customer_mobile != '' && customer_mobile.length != 10) {
       formIsValid = false;
       setErrField(prevState => ({
         ...prevState, mobileErr: 'Please Enter 10 Digit Mobile no'
@@ -180,17 +214,16 @@ const Services = ({ navigation }) => {
         ...prevState, addressErr: 'Please Enter Address'
       }))
     }
-    if (!filedata.name) {
-      formIsValid = false;
-      setErrField(prevState => ({
-        ...prevState, invoiceErr: 'Please upload invoice'
-      }))
-    }
+    // if (!filedata.name) {
+    //   formIsValid = false;
+    //   setErrField(prevState => ({
+    //     ...prevState, invoiceErr: 'Please upload invoice'
+    //   }))
+    // }
     return formIsValid;
   }
 
   const toast = useToast();
-
   return (
     <ScrollView style={{ backgroundColor: 'white' }}>
       <KeyboardAvoidingView behavior='position'>
@@ -206,18 +239,18 @@ const Services = ({ navigation }) => {
             <Text style={styles.logintext}>Service</Text>
 
             <View style={styles.inputStyle}>
-              <Dropdown daata={data} value={selecteditem} onSelect={onSelect} name='Select Brand' style={styles.input} />
+              <Dropdown daata={data} value={brand} onSelect={onSelect} name='Select Brand' style={styles.input} />
               {errField.brandErr.length > 0 && <Text style={styles.validline}>{errField.brandErr}</Text>}
-           
-              <Dropdown daata={data1} value={selecteditem1} onSelect={onSelect1} name='select Product' style={styles.input} />
+
+              <Dropdown daata={data1} value={product} onSelect={onSelect1} name='select Product' style={styles.input} />
               {errField.productErr.length > 0 && <Text style={styles.validline}>{errField.productErr}</Text>}
 
               <TextInput
                 style={styles.input}
                 placeholder="Customer Name"
                 keyboardType='default'
-                onChangeText={setName}
-                value={name}
+                onChangeText={setCustomer_name}
+                value={customer_name}
               />
               {errField.nameErr.length > 0 && <Text style={styles.validline}>{errField.nameErr}</Text>}
 
@@ -225,8 +258,8 @@ const Services = ({ navigation }) => {
                 style={styles.input}
                 placeholder="Mobile Number"
                 keyboardType='number-pad'
-                onChangeText={setMobile}
-                value={mobile}
+                onChangeText={setCustomer_mobile}
+                value={customer_mobile}
               />
               {errField.mobileErr.length > 0 && <Text style={styles.validline}>{errField.mobileErr}</Text>}
 
@@ -234,8 +267,8 @@ const Services = ({ navigation }) => {
                 style={styles.input}
                 placeholder="Email Address"
                 keyboardType='default'
-                onChangeText={setEmail}
-                value={email}
+                onChangeText={setCustomer_email}
+                value={customer_email}
               />
               {errField.emailErr.length > 0 && <Text style={styles.validline}>{errField.emailErr}</Text>}
 
@@ -251,18 +284,18 @@ const Services = ({ navigation }) => {
 
               <TouchableOpacity onPress={() => handleFilePicker()}>
                 <View style={styles.upload}>
-                  <Text style={styles.uploadtext}>{filedata ? 'Upload Invoice' : filedata.name }</Text>
+                  <Text style={styles.uploadtext}>{!filename ? 'Upload Invoice' : filename}</Text>
                   <Icon1 name='upload' size={28} style={styles.icon1} />
                 </View>
               </TouchableOpacity>
               {errField.invoiceErr.length > 0 && <Text style={styles.validline}>{errField.invoiceErr}</Text>}
-            
-             <TouchableOpacity onPress={Submit}>
-             <View style={styles.inputbutton}>
-                <Text style={styles.inputbuttontext}>SUBMIT</Text>
-              </View>
-             </TouchableOpacity>
-             
+
+              <TouchableOpacity onPress={Submit}>
+                <View style={styles.inputbutton}>
+                  <Text style={styles.inputbuttontext}>SUBMIT</Text>
+                </View>
+              </TouchableOpacity>
+
             </View>
 
 
