@@ -4,6 +4,7 @@ import React, { useState, useEffect, isValidElement } from 'react';
 import Icon from 'react-native-vector-icons/AntDesign';
 import Icon2 from 'react-native-vector-icons/Entypo';
 import colors from '../constant/colors';
+import url from '../Common';
 
 
 
@@ -19,7 +20,8 @@ var screenHalfWidth = screenSize.width * 0.465;
 
 const Login = ({ navigation }) => {
 
-
+  
+  const host = url.nodeUrl;
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -37,7 +39,7 @@ const Login = ({ navigation }) => {
 
     if (validForm()) {
 
-      let result = await fetch('http://192.168.1.8:5000/users/Login', {
+      let result = await fetch(host +"/users/Login", {
         method: 'post',
         headers: {
           'Accept': 'application/json',
@@ -50,7 +52,7 @@ const Login = ({ navigation }) => {
       })
       result = await result.json();
 
-      console.log()
+      
       if (result.data.status == 200) {
 
         toast.show("You login Succesfully ", {

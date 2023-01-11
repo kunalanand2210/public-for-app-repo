@@ -53,11 +53,21 @@ const userLogin = async (req, resp) => {
 }
 
 const userUpdate = async (req, resp) => {
+    var responseType = {
+        message: 'ok'
+    }
     try{
           const {brand, product, customer_name, customer_mobile, customer_email, address, invoice } = req.body;
           const _id = req.params.id;
           const updateUser = await Users.findByIdAndUpdate(_id,{"data":{brand, product, customer_name, customer_mobile, customer_email, address, invoice}})
-          resp.status(200).send({ message: 'ok', token: myToken });
+          if(updateUser){
+            responseType.message = 'User Submitted complain successfully';
+            responseType.status = 200;
+          }else{
+            responseType.message = 'something went wrong';
+            responseType.status = 401;
+          }
+          resp.status(responseType.status).json({ message: 'ok', data: responseType});
           
     }catch(e){
         resp.send(e);

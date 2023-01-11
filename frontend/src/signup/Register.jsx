@@ -16,7 +16,7 @@ import { useToast } from "react-native-toast-notifications";
 import Icon from 'react-native-vector-icons/AntDesign';
 import Icon2 from 'react-native-vector-icons/Entypo';
 import colors from '../constant/colors';
-
+import url from '../Common';
 
 var screenSize = Dimensions.get('window');
 var screenWidth = screenSize.width;
@@ -24,6 +24,10 @@ var screenHalfWidth = screenSize.width * 0.465;
 
 
 const Register = ({ navigation }) => {
+
+  const host = url.nodeUrl;
+  
+  
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -42,11 +46,11 @@ const Register = ({ navigation }) => {
     passwordErr: '',
     cpasswordErr: ''
   })
-
+ console.log(process.env.HOMEURL);
   const Submit = async () => {                                              //submit function here//
     if (validForm()) {
       setLoading(true);
-      let result = await fetch('http://192.168.1.8:5000/users/add', {
+      let result = await fetch(host + "/users/add" , {
         method: 'post',
         headers: {
           'Accept': 'application/json',

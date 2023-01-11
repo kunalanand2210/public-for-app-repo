@@ -9,6 +9,7 @@ import Icon1 from 'react-native-vector-icons/Feather';
 import colors from '../constant/colors';
 
 import FilePicker from 'react-native-document-picker';
+import url from '../Common';
 
 import { useToast } from "react-native-toast-notifications";
 
@@ -21,7 +22,7 @@ var screenWidth = screenSize.width;
 
 
 const Services = ({ navigation }) => {
-
+  const host = url.nodeUrl;
   const [auth, setAuth] = useState(false);
   const [valid, setValid] = useState(null);
   
@@ -79,7 +80,7 @@ const Services = ({ navigation }) => {
   const [brandid, setBrandid] = useState();
   const [productid, setProductid] = useState();
   let data = [
-    { id: 1, name: "Thompson" },
+    { id: 1, name: "Thomson" },
     { id: 2, name: "White WestingHouse" },
     { id: 3, name: "WestingHouse" },
     { id: 4, name: "Blaupunkt" },
@@ -107,7 +108,7 @@ const Services = ({ navigation }) => {
     const _id = detail.id;
   
     if (validForm()) {
-      let result = await fetch(`http://192.168.1.8:5000/users/update/${_id}`, {
+      let result = await fetch(host +`/users/update/${_id}`, {
         method: 'patch',
         headers: {
           'Accept': 'application/json',
@@ -126,7 +127,7 @@ const Services = ({ navigation }) => {
       result = await result.json();
       console.log(result);
       // to show the alert 
-      if (result.message == 'ok') {
+       if (result.data.status == 200) {
         toast.show("User detail successfully update", {
           type: "success",
           placement: "top",
@@ -135,10 +136,10 @@ const Services = ({ navigation }) => {
           animationType: "zoom-in",
         });
         // timeout for redirect the screen
-        //   setTimeout(() => {
-        //     navigation.navigate('Login');
-        //   }, 3000);
-        // }
+          setTimeout(() => {
+            navigation.navigate('Thankyou');
+          }, 3000);
+        
 
 
       } else {
